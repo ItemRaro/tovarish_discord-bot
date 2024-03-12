@@ -17,7 +17,7 @@ def run():
 
   @bot.event
   async def on_ready():
-    logger.info(f"\nBOT ID = {bot.user.id}\nBOT NAME = {bot.user}")
+    logger.info(f"\nBOT NAME = {bot.user} \t BOT ID = {bot.user.id}")
 
     for cog_file in settings.COGS_DIR.glob("*.py"):
       if cog_file != "__init__.py":

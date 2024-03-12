@@ -7,8 +7,16 @@ class AdminCommands(commands.Cog):
     self.bot = bot
 
   @commands.command()
-  async def load(self, ctx, a : int, b : int):
-    await ctx.send(f"{a} + {b} = {a+b}")
+  async def load(self, ctx, cog : str):
+    await self.bot.load_extension(f"cogs.{cog.lower()}")
+
+  @commands.command()
+  async def unload(self, ctx, cog : str):
+    await self.bot.unload_extension(f"cogs.{cog.lower()}")
+
+  @commands.command()
+  async def reload(self, ctx, cog : str):
+    await self.bot.reload_extension(f"cogs.{cog.lower()}")
 
 async def setup(bot):
   await bot.add_cog(AdminCommands(bot))

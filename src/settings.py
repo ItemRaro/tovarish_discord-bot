@@ -12,7 +12,7 @@ load_dotenv()
 
 DISCORD_API_SECRET = os.getenv("DISCORD_API_TOKEN")
 
-INTENTS = discord.Intents.default()
+INTENTS = discord.Intents.all()
 
 BOT = commands.Bot(command_prefix="!!", intents=INTENTS)
 
@@ -21,6 +21,14 @@ BOT = commands.Bot(command_prefix="!!", intents=INTENTS)
 MAIN_DIR = pathlib.Path("/app")
 
 COGS_DIR = MAIN_DIR / "cogs"
+
+# LAVALINK CONNECTION CONFIGURATIONS
+
+LAVALINK_HOSTNAME = "lavalink"
+
+LAVALINK_PORT = "2333"
+
+LAVALINK_PASSWORD = os.getenv("LAVALINK_API_PASSWD")
 
 # BOT LOGGING CONFIGURATIONS
 
@@ -52,6 +60,13 @@ LOGGIN_CONFIG = {
 			"filename": "logs/infos.log",
       "formatter": "verbose",
 			"mode": "w"
+		},
+    "music": {
+			"level": "INFO",
+			"class": "logging.FileHandler",
+			"filename": "logs/infos.log",
+      "formatter": "verbose",
+			"mode": "w"
 		}
 	},
   "loggers": {
@@ -62,6 +77,11 @@ LOGGIN_CONFIG = {
 		},
     "discord": {
       "handlers": ["console2", "file"],
+      "level": "INFO",
+      "propagate": False
+		},
+    "music": {
+      "handlers": ["console2", "music"],
       "level": "INFO",
       "propagate": False
 		}

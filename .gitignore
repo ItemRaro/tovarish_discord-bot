@@ -164,3 +164,6 @@ dependencies.txt
 
 # VSCODE
 .vscode
+
+# LOGS FOLDER
+./logs
