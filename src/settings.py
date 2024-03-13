@@ -20,7 +20,7 @@ BOT = commands.Bot(command_prefix="!!", intents=INTENTS)
 
 MAIN_DIR = pathlib.Path("/app")
 
-COGS_DIR = MAIN_DIR/"cogs"
+COGS_DIR = MAIN_DIR / "cogs"
 
 # LAVALINK CONNECTION CONFIGURATIONS
 
@@ -43,22 +43,29 @@ LOGGIN_CONFIG = {
     "verbose": {
       "format": "%(levelname)-10s - %(asctime)s - %(module)-15s : %(message)s"
 		},
-    "standard": {
+    "standart": {
       "format": "%(levelname)-10s - %(asctime)s - %(module)-15s : %(message)s"
 		}
 	},
   "handlers": {
-    "console_debug": {
+    "console": {
       "level": "DEBUG",
       "class": "logging.StreamHandler",
-      "formatter": "standard"
+      "formatter": "standart"
 		},
-    "console_warning": {
+    "console2": {
       "level": "WARNING",
       "class": "logging.StreamHandler",
-      "formatter": "standard"
+      "formatter": "standart"
 		},
     "file": {
+			"level": "INFO",
+			"class": "logging.FileHandler",
+			"filename": "logs/infos.log",
+      "formatter": "verbose",
+			"mode": "w"
+		},
+    "music": {
 			"level": "INFO",
 			"class": "logging.FileHandler",
 			"filename": "logs/infos.log",
@@ -68,12 +75,17 @@ LOGGIN_CONFIG = {
 	},
   "loggers": {
     "bot": {
-      "handlers": ["console_debug"],
+      "handlers": ["console"],
+      "level": "INFO",
+      "propagate": False
+		},
+    "discord": {
+      "handlers": ["console2", "file"],
       "level": "INFO",
       "propagate": False
 		},
     "music": {
-      "handlers": ["console_debug"],
+      "handlers": ["console", "music"],
       "level": "INFO",
       "propagate": False
 		}
