@@ -12,7 +12,7 @@ load_dotenv()
 
 DISCORD_API_SECRET = os.getenv("DISCORD_API_TOKEN")
 
-INTENTS = discord.Intents.all()
+INTENTS = discord.Intents.default()
 
 BOT = commands.Bot(command_prefix="!!", intents=INTENTS)
 
@@ -20,7 +20,7 @@ BOT = commands.Bot(command_prefix="!!", intents=INTENTS)
 
 MAIN_DIR = pathlib.Path("/app")
 
-COGS_DIR = MAIN_DIR / "cogs"
+COGS_DIR = MAIN_DIR/"cogs"
 
 # LAVALINK CONNECTION CONFIGURATIONS
 
@@ -29,6 +29,10 @@ LAVALINK_HOSTNAME = "lavalink"
 LAVALINK_PORT = "2333"
 
 LAVALINK_PASSWORD = os.getenv("LAVALINK_API_PASSWD")
+
+# MAMACO URL
+
+MAMACO = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjcMpUkFdsZubWyUg9de0kL7dlNTE2j9SBgYVVRfmuDA&s"
 
 # BOT LOGGING CONFIGURATIONS
 
@@ -39,29 +43,22 @@ LOGGIN_CONFIG = {
     "verbose": {
       "format": "%(levelname)-10s - %(asctime)s - %(module)-15s : %(message)s"
 		},
-    "standart": {
+    "standard": {
       "format": "%(levelname)-10s - %(asctime)s - %(module)-15s : %(message)s"
 		}
 	},
   "handlers": {
-    "console": {
+    "console_debug": {
       "level": "DEBUG",
       "class": "logging.StreamHandler",
-      "formatter": "standart"
+      "formatter": "standard"
 		},
-    "console2": {
+    "console_warning": {
       "level": "WARNING",
       "class": "logging.StreamHandler",
-      "formatter": "standart"
+      "formatter": "standard"
 		},
     "file": {
-			"level": "INFO",
-			"class": "logging.FileHandler",
-			"filename": "logs/infos.log",
-      "formatter": "verbose",
-			"mode": "w"
-		},
-    "music": {
 			"level": "INFO",
 			"class": "logging.FileHandler",
 			"filename": "logs/infos.log",
@@ -71,17 +68,12 @@ LOGGIN_CONFIG = {
 	},
   "loggers": {
     "bot": {
-      "handlers": ["console"],
-      "level": "INFO",
-      "propagate": False
-		},
-    "discord": {
-      "handlers": ["console2", "file"],
+      "handlers": ["console_debug"],
       "level": "INFO",
       "propagate": False
 		},
     "music": {
-      "handlers": ["console2", "music"],
+      "handlers": ["console_debug"],
       "level": "INFO",
       "propagate": False
 		}

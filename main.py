@@ -1,9 +1,10 @@
 import discord
+import src.settings as settings
 from discord.ext import commands
 from cogs.greetings import Greetings
 from cogs.commands import DefaultCommands
+from cogs.music import Music
 from cogs.errorhandler import ErrorHandler
-from src import settings
 
 logger = settings.logging.getLogger("bot")
 
@@ -22,7 +23,6 @@ def run():
     for cog_file in settings.COGS_DIR.glob("*.py"):
       if cog_file != "__init__.py":
         await bot.load_extension(f"cogs.{cog_file.name[:-3]}")
-
 
   bot.run(settings.DISCORD_API_SECRET, root_logger=True)
 
