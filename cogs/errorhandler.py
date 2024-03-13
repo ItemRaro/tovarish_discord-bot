@@ -2,16 +2,6 @@ import discord
 from discord.ext import commands
 import src.settings as settings
 
-class NotOwner(commands.CheckFailure):
-  ...
-
-def is_owner():
-  async def predicate(ctx):
-    if ctx.author.id != ctx.guild.owner_id:
-      raise NotOwner("Você não é o dono deste servidor.")
-    return True
-  return commands.check(predicate)
-
 class ErrorHandler(commands.Cog):
 
   def __init__(self, bot):
@@ -19,13 +9,26 @@ class ErrorHandler(commands.Cog):
 
   @commands.Cog.listener()
   async def on_command_error(self, ctx, error):
-    if isinstance(error, NotOwner):
-      await ctx.send("Permissão negada.")
-
-  @commands.Cog.listener()
-  async def on_command_error(self, ctx, error):
+    # ADMINISTRATION CHECK
+    if isinstance(error, commands.MissingPermissions):
+      permission = discord.Embed(title="ERRO")
+      permission.add_field(name="Permissão negada", value="")
+      permission.set_thumbnail(url=settings.MAMACO)
+      await ctx.send(embed=permission)
+    
+    # COMMAND EXISTENCE CHECK
+    if isinstance(error, commands.CommandNotFound):
+      error = discord.Embed(title="ERRO")
+      error.add_field(name="Comando inválido", value="")
+      error.set_thumbnail(url=settings.MAMACO)
+      await ctx.send(embed=error)
+    
+    # COMMAND ARGUMENTS CHECK
     if isinstance(error, commands.MissingRequiredArgument):
-      await ctx.send("Erro!! Digite o número seguido por epaço e outro número. Ex: some 2 2")
+      error = discord.Embed(title="ERRO")
+      error.add_field(name="Comando incompleto", value="")
+      error.set_thumbnail(url=settings.MAMACO)
+      await ctx.send(embed=error)
 
 async def setup(bot):
   await bot.add_cog(ErrorHandler(bot))

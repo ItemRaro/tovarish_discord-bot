@@ -1,7 +1,8 @@
 import discord
-import src.settings as settings
+from src import settings
+from src import help
 from discord.ext import commands
-from cogs.greetings import Greetings
+from cogs.controllers import Controllers
 from cogs.commands import DefaultCommands
 from cogs.music import Music
 from cogs.errorhandler import ErrorHandler
@@ -23,6 +24,10 @@ def run():
     for cog_file in settings.COGS_DIR.glob("*.py"):
       if cog_file != "__init__.py":
         await bot.load_extension(f"cogs.{cog_file.name[:-3]}")
+
+    # BOT PRESENCE UPDATE
+    mamaco = discord.CustomActivity(name="🍌 Mamaco * !!help")
+    await bot.change_presence(status=discord.Status.online, activity=mamaco)
 
   bot.run(settings.DISCORD_API_SECRET, root_logger=True)
 

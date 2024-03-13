@@ -44,7 +44,7 @@ LOGGIN_CONFIG = {
       "format": "%(levelname)-10s - %(asctime)s - %(module)-15s : %(message)s"
 		},
     "standart": {
-      "format": "%(levelname)-10s - %(asctime)s - %(module)-15s : %(message)s"
+      "format": "%(asctime)s - %(module)-15s : %(message)s"
 		}
 	},
   "handlers": {
@@ -68,7 +68,7 @@ LOGGIN_CONFIG = {
     "music": {
 			"level": "INFO",
 			"class": "logging.FileHandler",
-			"filename": "logs/infos.log",
+			"filename": "logs/music.log",
       "formatter": "verbose",
 			"mode": "w"
 		}
