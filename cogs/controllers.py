@@ -12,12 +12,15 @@ time = datetime.time(hour=3, minute=00, tzinfo=utc)
 
 class Controllers(commands.Cog):
 
+  text_channel = None
+
   def __init__(self, bot):
     self.bot = bot
     self.message_deletion.start()
 
   @tasks.loop(time=time)
-  async def message_deletion(self):
+  async def message_deletion(self, ctx):
+    music_channel_id = ""
     ...
 
 async def setup(bot):

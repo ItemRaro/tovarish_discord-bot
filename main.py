@@ -3,7 +3,7 @@ from src import settings
 from src import help
 from discord.ext import commands
 from cogs.controllers import Controllers
-from cogs.commands import DefaultCommands
+from cogs.admincommands import AdminCommands
 from cogs.music import Music
 from cogs.errorhandler import ErrorHandler
 

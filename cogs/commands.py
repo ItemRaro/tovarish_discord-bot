@@ -7,8 +7,8 @@ class DefaultCommands(commands.Cog):
     self.bot = bot
 
   @commands.command()
-  async def some(self, ctx, a : int, b : int):
-    await ctx.send(f"{a} + {b} = {a+b}")
+  async def deletemessages(self, ctx, num : int):
+    await ctx.message.delet
 
 async def setup(bot):
   await bot.add_cog(DefaultCommands(bot))

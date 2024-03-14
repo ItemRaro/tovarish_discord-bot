@@ -4,7 +4,6 @@ from discord.ext import commands
 import wavelink
 from src import settings
 from datetime import timedelta
-import asyncio
 
 # GLOBAL VARIABLES
 
