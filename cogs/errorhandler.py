@@ -19,7 +19,7 @@ class ErrorHandler(commands.Cog):
     # COMMAND EXISTENCE CHECK
     if isinstance(error, commands.CommandNotFound):
       error = discord.Embed(title="ERRO")
-      error.add_field(name="Comando inválido", value="")
+      error.add_field(name="Comando não existente", value="")
       error.set_thumbnail(url=settings.MAMACO)
       await ctx.send(embed=error)
     

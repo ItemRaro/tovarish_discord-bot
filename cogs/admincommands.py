@@ -62,6 +62,14 @@ class AdminCommands(commands.Cog):
         channel.add_field(name="TYPE", value=f"{ch.type}")
     channel.set_thumbnail(url=settings.MAMACO)
     await ctx.send(embed=channel)
+  
+  @commands.command()
+  @commands.has_permissions(administrator=True)
+  async def listguilds(self, ctx):
+    for gu in self.bot.guilds:
+      await ctx.send(gu.name)
+      for ch in gu.channels:
+        await ctx.send(ch.name)
         
 async def setup(bot):
   await bot.add_cog(AdminCommands(bot))

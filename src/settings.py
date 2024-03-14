@@ -10,11 +10,11 @@ load_dotenv()
 
 # DISCORD CONNECTION CONFIGURATIONS
 
-DISCORD_API_SECRET = os.getenv("DISCORD_API_TOKEN")
+DISCORD_API_SECRET = os.getenv("DISCORD_YUFFIE_TOKEN")
 
 INTENTS = discord.Intents.default()
 
-BOT = commands.Bot(command_prefix="!!", intents=INTENTS)
+BOT = commands.Bot(command_prefix="--", intents=INTENTS)
 
 # PATHS TO BE LOADED FOR COGS AND OTHER
 

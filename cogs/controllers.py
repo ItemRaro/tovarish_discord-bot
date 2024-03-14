@@ -3,25 +3,29 @@ import datetime
 from discord.ext import commands
 from discord.ext import tasks
 
-# DATE AND TIME
+# TIME AND TIMEZONE
 
-utc = datetime.timezone.utc
+timezone = datetime.timezone(datetime.timedelta(hours=-3), name="BRL")
 
-# If no tzinfo is given then UTC is assumed.
-time = datetime.time(hour=3, minute=00, tzinfo=utc)
+time = datetime.time(hour=16, minute=33, tzinfo=timezone)
 
 class Controllers(commands.Cog):
-
-  text_channel = None
 
   def __init__(self, bot):
     self.bot = bot
     self.message_deletion.start()
 
+  def cog_unload(self):
+    self.message_deletion.cancel()
+
   @tasks.loop(time=time)
-  async def message_deletion(self, ctx):
-    music_channel_id = ""
-    ...
+  async def message_deletion(self):
+    self.channel_id = "1148485450634371144"
+    for guild in self.bot.guilds:
+      for channel in guild.channels:
+        if str(channel.id) == self.channel_id:
+          self.channel = channel
+    await self.channel.purge()
 
 async def setup(bot):
   await bot.add_cog(Controllers(bot))
