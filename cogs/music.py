@@ -53,7 +53,7 @@ class Music(commands.Cog):
   # CHECKS IF PLAYER IS INACTIVE AND THEN DISCONNECTS
   @commands.Cog.listener()
   async def on_wavelink_inactive_player(self, player : wavelink.Player):
-    await player.channel.send(f"O mamaco está inativo por `{player.inactive_timeout}` segundos. Adeus!")
+    self.connected = False
     await player.disconnect()
 
   # ADDS AND PLAYS MUSIC FROM THE QUEUE
