@@ -4,10 +4,9 @@ from discord.ext import commands
 from discord.ext import tasks
 
 # TIME AND TIMEZONE
-
 timezone = datetime.timezone(datetime.timedelta(hours=-3), name="BRL")
-
-time = datetime.time(hour=16, minute=33, tzinfo=timezone)
+# TIME TO EXECUTE A TASK DAILY
+time = datetime.time(hour=00, minute=00, tzinfo=timezone)
 
 class Controllers(commands.Cog):
 
@@ -15,9 +14,7 @@ class Controllers(commands.Cog):
     self.bot = bot
     self.message_deletion.start()
 
-  def cog_unload(self):
-    self.message_deletion.cancel()
-
+  # AUTO DELETE MESSAGES FROM A TEXTCHANNEL SPECIFIED BY CHANNEL ID
   @tasks.loop(time=time)
   async def message_deletion(self):
     self.channel_id = "1148485450634371144"
@@ -25,7 +22,7 @@ class Controllers(commands.Cog):
       for channel in guild.channels:
         if str(channel.id) == self.channel_id:
           self.channel = channel
-    await self.channel.purge()
+    await self.channel.purge(limit=None)
 
 async def setup(bot):
   await bot.add_cog(Controllers(bot))

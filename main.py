@@ -19,17 +19,28 @@ def run():
 
   @bot.event
   async def on_ready():
-    logger.info(f"\nBOT NAME = {bot.user} \t BOT ID = {bot.user.id}\t STATUS = {str(bot.status).upper()}")
-    for guild in bot.guilds:
-      logger.info(f"\nGUILD NAME = {guild.name} \t GUILD ID = {guild.id}\t STATUS = {guild.member_count} MEMBERS ONLINE")
 
+    # ENABLE LOGS ON STARTUP
+    logger.info(
+      f"\nBOT NAME = {bot.user} \t BOT ID = {bot.user.id}\t STATUS = {str(bot.status).upper()}"
+      )
+    
+    for guild in bot.guilds:
+      logger.info(
+        f"\nGUILD NAME = {guild.name} \t GUILD ID = {guild.id}\t STATUS = {guild.member_count} MEMBERS ONLINE"
+        )
+
+    # LOAD COGS DURING STARTUP
     for cog_file in settings.COGS_DIR.glob("*.py"):
       if cog_file != "__init__.py":
         await bot.load_extension(f"cogs.{cog_file.name[:-3]}")
 
     # BOT PRESENCE UPDATE
-    mamaco = discord.CustomActivity(name="⚔️ Ninja * --help")
-    await bot.change_presence(status=discord.Status.online, activity=mamaco)
+    mamaco = discord.CustomActivity(name="Development ⌥ --help")
+    await bot.change_presence(
+      status=discord.Status.online,
+      activity=mamaco
+      )
 
   bot.run(settings.DISCORD_API_SECRET, root_logger=True)
 

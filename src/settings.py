@@ -3,10 +3,11 @@ import pathlib
 import logging
 import discord
 from discord.ext import commands
+from src.help import HelpCommand
 from dotenv import load_dotenv
 from logging.config import dictConfig
 
-load_dotenv()
+load_dotenv(dotenv_path="/app/.env")
 
 # DISCORD CONNECTION CONFIGURATIONS
 
@@ -14,7 +15,7 @@ DISCORD_API_SECRET = os.getenv("DISCORD_YUFFIE_TOKEN")
 
 INTENTS = discord.Intents.default()
 
-BOT = commands.Bot(command_prefix="--", intents=INTENTS)
+BOT = commands.Bot(command_prefix="--", intents=INTENTS, help_command=HelpCommand())
 
 # PATHS TO BE LOADED FOR COGS AND OTHER
 

@@ -37,18 +37,20 @@ class Music(commands.Cog):
     
   @commands.Cog.listener()
   async def on_wavelink_node_ready(self, node : wavelink.NodeReadyEventPayload):
-    logger.info(f"\nCOG NAME = {os.path.splitext(file_name)[0]} \t ID = {node.node.identifier} \t  STATUS = {str(node.node.status)[-9:]}")
+    logger.info(
+      f"\nCOG NAME = {os.path.splitext(file_name)[0]} \t ID = {node.node.identifier} \t  STATUS = {str(node.node.status)[-9:]}"
+      )
   
   @commands.Cog.listener()
   async def on_wavelink_track_start(self, now_playing : wavelink.TrackStartEventPayload):
-    embed = discord.Embed(
+    nowplaying_embed = discord.Embed(
       colour=discord.Colour.yellow(),
       title=f"{now_playing.track.title}",
       description=f"by {now_playing.track.author}"
       )
-    embed.set_thumbnail(url=settings.MAMACO)
-    embed.set_image(url=now_playing.track.artwork)
-    await self.music_channel.send(embed=embed)
+    nowplaying_embed.set_thumbnail(url=settings.MAMACO)
+    nowplaying_embed.set_image(url=now_playing.track.artwork)
+    await self.music_channel.send(embed=nowplaying_embed)
 
   # CHECKS IF PLAYER IS INACTIVE AND THEN DISCONNECTS
   @commands.Cog.listener()
@@ -82,12 +84,12 @@ class Music(commands.Cog):
       await ctx.send("Música não encontrada. Tente novamente")
       return
     if isinstance(search, wavelink.Playlist):
-      await self.vc.queue.put_wait(search)
+      tracks : int = await self.vc.queue.put_wait(search)
       embed = discord.Embed(
       colour=discord.Colour.yellow(),
-      title=f"Playlist {search.name}"
+      title=f"{search.name}"
       )
-      embed.set_footer(text="adicionada a fila")
+      embed.add_field(name=f"{tracks} músicas adicionadas a fila", value="")
       embed.set_thumbnail(url=settings.MAMACO)
       await ctx.send(embed=embed)
     else:
@@ -102,7 +104,7 @@ class Music(commands.Cog):
         title=f"{track.title}",
         description=f"by {track.author}"
         )
-        embed.set_footer(text="adicionada a fila")
+        embed.add_field(name="adicionada a fila", value="")
         embed.set_thumbnail(url=settings.MAMACO)
         await ctx.send(embed=embed)
    
@@ -118,6 +120,42 @@ class Music(commands.Cog):
       await ctx.message.delete()
     except discord.HTTPException:
       pass
+
+  # PAUSE CURRENT PLAYING SONG
+  @commands.command()
+  async def pause(self, ctx) -> None:
+    if not self.vc:
+        return
+    await self.vc.pause(True)
+    paused_embed = discord.Embed(
+      colour=discord.Colour.yellow(),
+      title=f"Pausado",
+      description=f"{self.vc.current.title}\nby {self.vc.current.author}"
+      )
+    paused_embed.set_thumbnail(url=settings.MAMACO)
+    await ctx.send(embed=paused_embed)
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
+  
+  # RESUME CURRENT PLAYING SONG
+  @commands.command()
+  async def resume(self, ctx) -> None:
+    if not self.vc:
+        return
+    await self.vc.pause(False)
+    resumed_embed = discord.Embed(
+      colour=discord.Colour.yellow(),
+      title=f"Tocando",
+      description=f"{self.vc.current.title}\nby {self.vc.current.author}"
+      )
+    resumed_embed.set_thumbnail(url=settings.MAMACO)
+    await ctx.send(embed=resumed_embed)
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
   
   # SKIP CURRENT PLAYING SONG
   @commands.command()
@@ -125,48 +163,84 @@ class Music(commands.Cog):
     if not self.vc:
         return
     await self.vc.skip(force=True)
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
 
   # STOPS CURRENT PLAYING MUSIC AND CLEARS THE QUEUE
   @commands.command()
   async def stop(self, ctx) -> None:
-    channel = self.vc.channel
-    if not self.vc.queue.is_empty:
-      await self.vc.queue.clear()
-    if self.vc.playing:
-      await self.vc.stop()
     self.connected = False
     await self.vc.disconnect()
-    await ctx.send(f"Saiu de {channel.name}")
+    if not self.vc.queue.is_empty:
+      await self.vc.queue.clear()
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
 
-  # # SHOW THE CURRENT MUSIC LIST
+  # SHOW THE CURRENT MUSIC LIST
   @commands.command()
   async def queue(self, ctx) -> None:
-      if not self.vc.queue.is_empty:
-        counter = 1
-        queue = []
-        queue = self.vc.queue.copy()
-        embed = discord.Embed(title="Próximas músicas")
-        for track_item in queue:
-            counter = counter + 1
-            track_info = track_item
-            embed.add_field(name=f"{counter} - {track_info.title} by {track_info.author} ({str(timedelta(seconds=track_info.length / 1000))[3:]}min)",
-                            value="", inline=False
-                            )
-        embed.set_thumbnail(url=settings.MAMACO)
-        await ctx.send(embed=embed)
-      else:
-        embed = discord.Embed(title="A fila está vazia")
-        embed.set_thumbnail(url=settings.MAMACO)
-        await ctx.send(embed=embed)
+    if not self.vc.queue.is_empty:
+      counter = 0
+      queue = []
+      queue = self.vc.queue.copy()
+      queue_embed = discord.Embed(
+        colour=discord.Colour.yellow(),
+        title="Próximas músicas"
+        )
+      for track_item in queue:
+          counter = counter + 1
+          track_info = track_item
+          queue_embed.add_field(
+            name=f"{counter} - {track_info.title} by {track_info.author} ({str(timedelta(seconds=track_info.length / 1000))[3:]}min)",
+            value="", inline=False
+            )
+      queue_embed.set_thumbnail(url=settings.MAMACO)
+      await ctx.send(embed=queue_embed)
+    else:
+      empty_embed = discord.Embed(
+        colour=discord.Colour.yellow(),
+        title="A fila está vazia"
+        )
+      empty_embed.set_thumbnail(url=settings.MAMACO)
+      await ctx.send(embed=empty_embed)
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
+
+  # DELETES A TRACK FROM THE QUEUE
+  @commands.command()
+  async def delete(self, ctx, track : int):
+    if not self.vc.queue.is_empty and self.vc:
+      del_track = self.vc.queue.get_at(track - 1)
+      track_embed = discord.Embed(
+        colour=discord.Colour.yellow(),
+        title=f"{del_track.title}",
+        description=f"by {del_track.author}"
+        )
+      track_embed.add_field(name="Foi removido da fila", value="")
+      track_embed.set_thumbnail(url=settings.MAMACO)
+      await ctx.send(embed=track_embed)
+      await self.vc.queue.delete(del_track)
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
   
   # LEAVES VOICE CHANNEL
   @commands.command()
   async def bye(self, ctx) -> None:
-    channel = self.vc.channel
-    if channel:
+    if self.vc.connected:
       self.connected = False
       await self.vc.disconnect()
-    await ctx.send(f"Saiu de {channel.name}")
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
   
   # RESETS BOT CONNECTION WITH VOICE CHANNEL
   @commands.command()
@@ -175,7 +249,10 @@ class Music(commands.Cog):
     self.vc = await channel.connect(cls=wavelink.Player)
     self.connected = False
     await self.vc.disconnect()
-
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
 
 async def setup(bot):
   music_bot = Music(bot)
