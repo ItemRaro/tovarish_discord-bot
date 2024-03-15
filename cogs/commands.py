@@ -8,7 +8,11 @@ class DefaultCommands(commands.Cog):
 
   @commands.command()
   async def deletemessages(self, ctx, num : int):
-    await ctx.message.delet
+    await ctx.channel.purge(limit=num)
+  
+  @commands.command()
+  async def purgemessages(self, ctx):
+    await ctx.channel.purge()
 
 async def setup(bot):
   await bot.add_cog(DefaultCommands(bot))

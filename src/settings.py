@@ -10,7 +10,7 @@ load_dotenv()
 
 # DISCORD CONNECTION CONFIGURATIONS
 
-DISCORD_API_SECRET = os.getenv("DISCORD_API_TOKEN")
+DISCORD_API_SECRET = os.getenv("DISCORD_TOVARISH_TOKEN")
 
 INTENTS = discord.Intents.default()
 

@@ -55,8 +55,9 @@ class AdminCommands(commands.Cog):
   async def listchannels(self, ctx):
     channel_type = "category"
     channel = discord.Embed(title="PROPRIEDADES DO CANAL")
+    await ctx.send(ctx.guild.channels)
     for ch in ctx.guild.channels:
-      if str(ch.type) != channel_type:
+      if str(ch.type).lower() != channel_type:
         channel.add_field(name="Nome", value=f"{ch.name}")
         channel.add_field(name="ID", value=f"||{ch.id}||")
         channel.add_field(name="TYPE", value=f"{ch.type}")
