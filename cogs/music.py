@@ -8,7 +8,7 @@ from datetime import timedelta
 # GLOBAL VARIABLES
 
 logger = settings.logging.getLogger("music")
-file_name = os.path.basename(__file__).upper()
+file_name = os.path.basename(__file__)
 
 class Music(commands.Cog):
 
@@ -142,14 +142,16 @@ class Music(commands.Cog):
   @commands.command()
   async def queue(self, ctx) -> None:
       if not self.vc.queue.is_empty:
+        counter = 1
         queue = []
         queue = self.vc.queue.copy()
         embed = discord.Embed(title="Próximas músicas")
         for track_item in queue:
+            counter = counter + 1
             track_info = track_item
-            embed.add_field(name=f"{track_info.title} \
-                            by {track_info.author} - {str(timedelta(seconds=track_info.length / 1000))[3:]}",
-                            value="", inline=False)
+            embed.add_field(name=f"{counter} - {track_info.title} by {track_info.author} ({str(timedelta(seconds=track_info.length / 1000))[3:]}min)",
+                            value="", inline=False
+                            )
         embed.set_thumbnail(url=settings.MAMACO)
         await ctx.send(embed=embed)
       else:

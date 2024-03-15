@@ -11,21 +11,21 @@ class ErrorHandler(commands.Cog):
   async def on_command_error(self, ctx, error):
     # ADMINISTRATION CHECK
     if isinstance(error, commands.MissingPermissions):
-      permission = discord.Embed(title="ERRO")
+      permission = discord.Embed(title="ERRO ⛔")
       permission.add_field(name="Permissão negada", value="")
       permission.set_thumbnail(url=settings.MAMACO)
       await ctx.send(embed=permission)
     
     # COMMAND EXISTENCE CHECK
     if isinstance(error, commands.CommandNotFound):
-      error = discord.Embed(title="ERRO")
+      error = discord.Embed(title="ERRO ⛔")
       error.add_field(name="Comando não existente", value="")
       error.set_thumbnail(url=settings.MAMACO)
       await ctx.send(embed=error)
     
     # COMMAND ARGUMENTS CHECK
     if isinstance(error, commands.MissingRequiredArgument):
-      error = discord.Embed(title="ERRO")
+      error = discord.Embed(title="ERRO ⛔")
       error.add_field(name="Comando incompleto", value="")
       error.set_thumbnail(url=settings.MAMACO)
       await ctx.send(embed=error)

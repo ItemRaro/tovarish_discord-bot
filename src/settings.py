@@ -30,7 +30,7 @@ LAVALINK_PORT = "2333"
 
 LAVALINK_PASSWORD = os.getenv("LAVALINK_API_PASSWD")
 
-# MAMACO URL
+# THUMBS URL
 
 MAMACO = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRjcMpUkFdsZubWyUg9de0kL7dlNTE2j9SBgYVVRfmuDA&s"
 
