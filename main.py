@@ -6,6 +6,7 @@ from cogs.controllers import Controllers
 from cogs.admincommands import AdminCommands
 from cogs.music import Music
 from cogs.errorhandler import ErrorHandler
+from cogs.chatgptai import ChatGPTAI
 
 logger = settings.logging.getLogger("bot")
 
