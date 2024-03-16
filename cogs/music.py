@@ -4,11 +4,12 @@ from discord.ext import commands
 import wavelink
 from src import settings
 from datetime import timedelta
+from helpconfig import music
 
 # GLOBAL VARIABLES
 
 logger = settings.logging.getLogger("music")
-file_name = os.path.basename(__file__).upper()
+file_name = os.path.basename(__file__)
 
 class Music(commands.Cog):
 
@@ -37,18 +38,20 @@ class Music(commands.Cog):
     
   @commands.Cog.listener()
   async def on_wavelink_node_ready(self, node : wavelink.NodeReadyEventPayload):
-    logger.info(f"\nCOG NAME = {os.path.splitext(file_name)[0]} \t ID = {node.node.identifier} \t  STATUS = {str(node.node.status)[-9:]}")
+    logger.info(
+      f"\nCOG NAME = {os.path.splitext(file_name)[0]} \t ID = {node.node.identifier} \t  STATUS = {str(node.node.status)[-9:]}"
+      )
   
   @commands.Cog.listener()
   async def on_wavelink_track_start(self, now_playing : wavelink.TrackStartEventPayload):
-    embed = discord.Embed(
+    nowplaying_embed = discord.Embed(
       colour=discord.Colour.yellow(),
       title=f"{now_playing.track.title}",
       description=f"by {now_playing.track.author}"
       )
-    embed.set_thumbnail(url=settings.MAMACO)
-    embed.set_image(url=now_playing.track.artwork)
-    await self.music_channel.send(embed=embed)
+    nowplaying_embed.set_thumbnail(url=settings.MAMACO)
+    nowplaying_embed.set_image(url=now_playing.track.artwork)
+    await self.music_channel.send(embed=nowplaying_embed)
 
   # CHECKS IF PLAYER IS INACTIVE AND THEN DISCONNECTS
   @commands.Cog.listener()
@@ -57,7 +60,12 @@ class Music(commands.Cog):
     await player.disconnect()
 
   # ADDS AND PLAYS MUSIC FROM THE QUEUE
-  @commands.command()
+  @commands.command(
+    description=music.MusicPlay.DESCRIPTION,
+    aliases=music.MusicPlay.ALIASES,
+    help=music.MusicPlay.HELP,
+    brief=music.MusicPlay.BRIEF
+  )
   async def play(self, ctx, *query : str) -> None:
     # CONNECTS TO VOICE CHANNEL
     channel = ctx.author.voice.channel
@@ -82,12 +90,12 @@ class Music(commands.Cog):
       await ctx.send("Música não encontrada. Tente novamente")
       return
     if isinstance(search, wavelink.Playlist):
-      await self.vc.queue.put_wait(search)
+      tracks : int = await self.vc.queue.put_wait(search)
       embed = discord.Embed(
       colour=discord.Colour.yellow(),
-      title=f"Playlist {search.name}"
+      title=f"{search.name}"
       )
-      embed.set_footer(text="adicionada a fila")
+      embed.add_field(name=f"{tracks} músicas adicionadas a fila", value="")
       embed.set_thumbnail(url=settings.MAMACO)
       await ctx.send(embed=embed)
     else:
@@ -102,7 +110,7 @@ class Music(commands.Cog):
         title=f"{track.title}",
         description=f"by {track.author}"
         )
-        embed.set_footer(text="adicionada a fila")
+        embed.add_field(name="adicionada a fila", value="")
         embed.set_thumbnail(url=settings.MAMACO)
         await ctx.send(embed=embed)
    
@@ -118,62 +126,203 @@ class Music(commands.Cog):
       await ctx.message.delete()
     except discord.HTTPException:
       pass
+
+  # PAUSE CURRENT PLAYING SONG
+  @commands.command(
+    description=music.MusicPause.DESCRIPTION,
+    aliases=music.MusicPause.ALIASES,
+    help=music.MusicPause.HELP,
+    brief=music.MusicPause.BRIEF
+  )
+  async def pause(self, ctx) -> None:
+    if not self.vc:
+        return
+    await self.vc.pause(True)
+    paused_embed = discord.Embed(
+      colour=discord.Colour.yellow(),
+      title=f"Pausado",
+      description=f"{self.vc.current.title}\nby {self.vc.current.author}"
+      )
+    paused_embed.set_thumbnail(url=settings.MAMACO)
+    await ctx.send(embed=paused_embed)
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
+  
+  # RESUME CURRENT PLAYING SONG
+  @commands.command(
+    description=music.MusicResume.DESCRIPTION,
+    aliases=music.MusicResume.ALIASES,
+    help=music.MusicResume.HELP,
+    brief=music.MusicResume.BRIEF
+  )
+  async def resume(self, ctx) -> None:
+    if not self.vc:
+        return
+    await self.vc.pause(False)
+    resumed_embed = discord.Embed(
+      colour=discord.Colour.yellow(),
+      title=f"Tocando",
+      description=f"{self.vc.current.title}\nby {self.vc.current.author}"
+      )
+    resumed_embed.set_thumbnail(url=settings.MAMACO)
+    await ctx.send(embed=resumed_embed)
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
   
   # SKIP CURRENT PLAYING SONG
-  @commands.command()
+  @commands.command(
+    description=music.MusicSkip.DESCRIPTION,
+    aliases=music.MusicSkip.ALIASES,
+    help=music.MusicSkip.HELP,
+    brief=music.MusicSkip.BRIEF
+  )
   async def skip(self, ctx) -> None:
     if not self.vc:
         return
     await self.vc.skip(force=True)
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
 
   # STOPS CURRENT PLAYING MUSIC AND CLEARS THE QUEUE
-  @commands.command()
+  @commands.command(
+    description=music.MusicStop.DESCRIPTION,
+    aliases=music.MusicStop.ALIASES,
+    help=music.MusicStop.HELP,
+    brief=music.MusicStop.BRIEF
+  )
   async def stop(self, ctx) -> None:
-    channel = self.vc.channel
-    if not self.vc.queue.is_empty:
-      await self.vc.queue.clear()
-    if self.vc.playing:
-      await self.vc.stop()
     self.connected = False
     await self.vc.disconnect()
-    await ctx.send(f"Saiu de {channel.name}")
+    if not self.vc.queue.is_empty:
+      await self.vc.queue.clear()
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
 
-  # # SHOW THE CURRENT MUSIC LIST
-  @commands.command()
+  # SHOW THE CURRENT MUSIC LIST
+  @commands.command(
+    description=music.MusicQueue.DESCRIPTION,
+    aliases=music.MusicQueue.ALIASES,
+    help=music.MusicQueue.HELP,
+    brief=music.MusicQueue.BRIEF
+  )
   async def queue(self, ctx) -> None:
-      if not self.vc.queue.is_empty:
-        queue = []
-        queue = self.vc.queue.copy()
-        embed = discord.Embed(title="Próximas músicas")
-        for track_item in queue:
-            track_info = track_item
-            embed.add_field(name=f"{track_info.title} \
-                            by {track_info.author} - {str(timedelta(seconds=track_info.length / 1000))[3:]}",
-                            value="", inline=False)
-        embed.set_thumbnail(url=settings.MAMACO)
-        await ctx.send(embed=embed)
-      else:
-        embed = discord.Embed(title="A fila está vazia")
-        embed.set_thumbnail(url=settings.MAMACO)
-        await ctx.send(embed=embed)
+    if not self.vc.queue.is_empty:
+      counter = 0
+      queue = []
+      queue = self.vc.queue.copy()
+      queue_embed = discord.Embed(
+        colour=discord.Colour.yellow(),
+        title="Próximas músicas"
+        )
+      for track_item in queue:
+          counter = counter + 1
+          track_info = track_item
+          queue_embed.add_field(
+            name=f"{counter} - {track_info.title} by {track_info.author} ({str(timedelta(seconds=track_info.length / 1000))[3:]}min)",
+            value="", inline=False
+            )
+      queue_embed.set_thumbnail(url=settings.MAMACO)
+      await ctx.send(embed=queue_embed)
+    else:
+      empty_embed = discord.Embed(
+        colour=discord.Colour.yellow(),
+        title="A fila está vazia"
+        )
+      empty_embed.set_thumbnail(url=settings.MAMACO)
+      await ctx.send(embed=empty_embed)
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
+  
+  # SHUFFLE THE CURRENT QUEUE
+  @commands.command(
+    description=music.MusicQueueShuffle.DESCRIPTION,
+    aliases=music.MusicQueueShuffle.ALIASES,
+    help=music.MusicQueueShuffle.HELP,
+    brief=music.MusicQueueShuffle.BRIEF
+  )
+  async def shuffle(self, ctx) -> None:
+    shuffle_embed = discord.Embed(
+      colour=discord.Colour.yellow(),
+      title="Fila embaralhada"
+      )
+    shuffle_embed.set_thumbnail(url=settings.MAMACO)
+    await ctx.send(embed=shuffle_embed)
+    if not self.vc.queue.is_empty and self.vc.playing:
+      await self.vc.queue.shuffle()
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
+
+  # DELETES A TRACK FROM THE QUEUE
+  @commands.command(
+    description=music.MusicQueueDelete.DESCRIPTION,
+    aliases=music.MusicQueueDelete.ALIASES,
+    help=music.MusicQueueDelete.HELP,
+    brief=music.MusicQueueDelete.BRIEF
+  )
+  async def delete(self, ctx, track : int) -> None:
+    if not self.vc.queue.is_empty and self.vc:
+      del_track = self.vc.queue.get_at(track - 1)
+      track_embed = discord.Embed(
+        colour=discord.Colour.yellow(),
+        title=f"{del_track.title}",
+        description=f"by {del_track.author}"
+        )
+      track_embed.add_field(
+        name="Foi removido da fila",
+        value=""
+        )
+      track_embed.set_thumbnail(url=settings.MAMACO)
+      await ctx.send(embed=track_embed)
+      await self.vc.queue.delete(del_track)
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
   
   # LEAVES VOICE CHANNEL
-  @commands.command()
+  @commands.command(
+    description=music.MusicBye.DESCRIPTION,
+    aliases=music.MusicBye.ALIASES,
+    help=music.MusicBye.HELP,
+    brief=music.MusicBye.BRIEF
+  )
   async def bye(self, ctx) -> None:
-    channel = self.vc.channel
-    if channel:
+    if self.vc.connected:
       self.connected = False
       await self.vc.disconnect()
-    await ctx.send(f"Saiu de {channel.name}")
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
   
   # RESETS BOT CONNECTION WITH VOICE CHANNEL
-  @commands.command()
+  @commands.command(
+    description=music.MusicReset.DESCRIPTION,
+    aliases=music.MusicReset.ALIASES,
+    help=music.MusicReset.HELP,
+    brief=music.MusicReset.BRIEF
+  )
   async def reset(self, ctx) -> None:
     channel = ctx.author.voice.channel
     self.vc = await channel.connect(cls=wavelink.Player)
     self.connected = False
     await self.vc.disconnect()
-
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
 
 async def setup(bot):
   music_bot = Music(bot)
