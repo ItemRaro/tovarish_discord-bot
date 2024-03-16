@@ -6,7 +6,7 @@ from discord.ext import tasks
 # TIME AND TIMEZONE
 timezone = datetime.timezone(datetime.timedelta(hours=-3), name="BRL")
 # TIME TO EXECUTE A TASK DAILY
-time = datetime.time(hour=00, minute=00, tzinfo=timezone)
+time = datetime.time(hour=3, minute=00, tzinfo=timezone)
 
 class Controllers(commands.Cog):
 
