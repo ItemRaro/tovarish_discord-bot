@@ -4,6 +4,7 @@ from discord.ext import commands
 import wavelink
 from src import settings
 from datetime import timedelta
+from helpconfig import music
 
 # GLOBAL VARIABLES
 
@@ -59,7 +60,12 @@ class Music(commands.Cog):
     await player.disconnect()
 
   # ADDS AND PLAYS MUSIC FROM THE QUEUE
-  @commands.command()
+  @commands.command(
+    description=music.MusicPlay.DESCRIPTION,
+    aliases=music.MusicPlay.ALIASES,
+    help=music.MusicPlay.HELP,
+    brief=music.MusicPlay.BRIEF
+  )
   async def play(self, ctx, *query : str) -> None:
     # CONNECTS TO VOICE CHANNEL
     channel = ctx.author.voice.channel
@@ -122,7 +128,12 @@ class Music(commands.Cog):
       pass
 
   # PAUSE CURRENT PLAYING SONG
-  @commands.command()
+  @commands.command(
+    description=music.MusicPause.DESCRIPTION,
+    aliases=music.MusicPause.ALIASES,
+    help=music.MusicPause.HELP,
+    brief=music.MusicPause.BRIEF
+  )
   async def pause(self, ctx) -> None:
     if not self.vc:
         return
@@ -140,7 +151,12 @@ class Music(commands.Cog):
       pass
   
   # RESUME CURRENT PLAYING SONG
-  @commands.command()
+  @commands.command(
+    description=music.MusicResume.DESCRIPTION,
+    aliases=music.MusicResume.ALIASES,
+    help=music.MusicResume.HELP,
+    brief=music.MusicResume.BRIEF
+  )
   async def resume(self, ctx) -> None:
     if not self.vc:
         return
@@ -158,7 +174,12 @@ class Music(commands.Cog):
       pass
   
   # SKIP CURRENT PLAYING SONG
-  @commands.command()
+  @commands.command(
+    description=music.MusicSkip.DESCRIPTION,
+    aliases=music.MusicSkip.ALIASES,
+    help=music.MusicSkip.HELP,
+    brief=music.MusicSkip.BRIEF
+  )
   async def skip(self, ctx) -> None:
     if not self.vc:
         return
@@ -169,7 +190,12 @@ class Music(commands.Cog):
       pass
 
   # STOPS CURRENT PLAYING MUSIC AND CLEARS THE QUEUE
-  @commands.command()
+  @commands.command(
+    description=music.MusicStop.DESCRIPTION,
+    aliases=music.MusicStop.ALIASES,
+    help=music.MusicStop.HELP,
+    brief=music.MusicStop.BRIEF
+  )
   async def stop(self, ctx) -> None:
     self.connected = False
     await self.vc.disconnect()
@@ -181,7 +207,12 @@ class Music(commands.Cog):
       pass
 
   # SHOW THE CURRENT MUSIC LIST
-  @commands.command()
+  @commands.command(
+    description=music.MusicQueue.DESCRIPTION,
+    aliases=music.MusicQueue.ALIASES,
+    help=music.MusicQueue.HELP,
+    brief=music.MusicQueue.BRIEF
+  )
   async def queue(self, ctx) -> None:
     if not self.vc.queue.is_empty:
       counter = 0
@@ -211,10 +242,36 @@ class Music(commands.Cog):
       await ctx.message.delete()
     except discord.HTTPException:
       pass
+  
+  # SHUFFLE THE CURRENT QUEUE
+  @commands.command(
+    description=music.MusicQueueShuffle.DESCRIPTION,
+    aliases=music.MusicQueueShuffle.ALIASES,
+    help=music.MusicQueueShuffle.HELP,
+    brief=music.MusicQueueShuffle.BRIEF
+  )
+  async def shuffle(self, ctx) -> None:
+    shuffle_embed = discord.Embed(
+      colour=discord.Colour.yellow(),
+      title="Fila embaralhada"
+      )
+    shuffle_embed.set_thumbnail(url=settings.MAMACO)
+    await ctx.send(embed=shuffle_embed)
+    if not self.vc.queue.is_empty and self.vc.playing:
+      await self.vc.queue.shuffle()
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
 
   # DELETES A TRACK FROM THE QUEUE
-  @commands.command()
-  async def delete(self, ctx, track : int):
+  @commands.command(
+    description=music.MusicQueueDelete.DESCRIPTION,
+    aliases=music.MusicQueueDelete.ALIASES,
+    help=music.MusicQueueDelete.HELP,
+    brief=music.MusicQueueDelete.BRIEF
+  )
+  async def delete(self, ctx, track : int) -> None:
     if not self.vc.queue.is_empty and self.vc:
       del_track = self.vc.queue.get_at(track - 1)
       track_embed = discord.Embed(
@@ -222,7 +279,10 @@ class Music(commands.Cog):
         title=f"{del_track.title}",
         description=f"by {del_track.author}"
         )
-      track_embed.add_field(name="Foi removido da fila", value="")
+      track_embed.add_field(
+        name="Foi removido da fila",
+        value=""
+        )
       track_embed.set_thumbnail(url=settings.MAMACO)
       await ctx.send(embed=track_embed)
       await self.vc.queue.delete(del_track)
@@ -232,7 +292,12 @@ class Music(commands.Cog):
       pass
   
   # LEAVES VOICE CHANNEL
-  @commands.command()
+  @commands.command(
+    description=music.MusicBye.DESCRIPTION,
+    aliases=music.MusicBye.ALIASES,
+    help=music.MusicBye.HELP,
+    brief=music.MusicBye.BRIEF
+  )
   async def bye(self, ctx) -> None:
     if self.vc.connected:
       self.connected = False
@@ -243,7 +308,12 @@ class Music(commands.Cog):
       pass
   
   # RESETS BOT CONNECTION WITH VOICE CHANNEL
-  @commands.command()
+  @commands.command(
+    description=music.MusicReset.DESCRIPTION,
+    aliases=music.MusicReset.ALIASES,
+    help=music.MusicReset.HELP,
+    brief=music.MusicReset.BRIEF
+  )
   async def reset(self, ctx) -> None:
     channel = ctx.author.voice.channel
     self.vc = await channel.connect(cls=wavelink.Player)
