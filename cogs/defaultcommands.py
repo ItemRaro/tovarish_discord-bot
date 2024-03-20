@@ -7,6 +7,8 @@ class DefaultCommands(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
 
+# ------------------------------------------- COMMANDS START HERE ------------------------------------------- #
+
   # DELETE MESSAGES FROM THE CURRENT USER TEXT CHANNEL LIMIT 100
   @commands.command(
     description=defaultcommands.DeleteMessages.DESCRIPTION,
