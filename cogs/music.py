@@ -6,14 +6,14 @@ from src import settings
 from datetime import timedelta
 from helpconfig import music
 
-# GLOBAL VARIABLES
+# GLOBAL SCOPE VARIABLES
 
 logger = settings.logging.getLogger("music")
 file_name = os.path.basename(__file__)
 
 class Music(commands.Cog):
 
-  # CLASS VARIABLES
+  # CLASS SCOPE VARIABLES
   
   vc : wavelink.Player = None
   connected = False
@@ -59,13 +59,20 @@ class Music(commands.Cog):
     self.connected = False
     await player.disconnect()
 
+  # CHECK IF PLAY COMMAND IS BEING USED ON THE RIGHT MUSIC CHANNELS
+  def is_music_channel(ctx):
+    return str(ctx.channel.id) in settings.MUSIC_CHANNELS_ID
+
+# ------------------------------------------- COMMANDS START HERE ------------------------------------------- #
+
   # ADDS AND PLAYS MUSIC FROM THE QUEUE
   @commands.command(
     description=music.MusicPlay.DESCRIPTION,
     aliases=music.MusicPlay.ALIASES,
     help=music.MusicPlay.HELP,
-    brief=music.MusicPlay.BRIEF
+    brief=music.MusicPlay.BRIEF,
   )
+  @commands.check(is_music_channel)
   async def play(self, ctx, *query : str) -> None:
     # CONNECTS TO VOICE CHANNEL
     channel = ctx.author.voice.channel
@@ -134,6 +141,7 @@ class Music(commands.Cog):
     help=music.MusicPause.HELP,
     brief=music.MusicPause.BRIEF
   )
+  @commands.check(is_music_channel)
   async def pause(self, ctx) -> None:
     if not self.vc:
         return
@@ -157,6 +165,7 @@ class Music(commands.Cog):
     help=music.MusicResume.HELP,
     brief=music.MusicResume.BRIEF
   )
+  @commands.check(is_music_channel)
   async def resume(self, ctx) -> None:
     if not self.vc:
         return
@@ -180,6 +189,7 @@ class Music(commands.Cog):
     help=music.MusicSkip.HELP,
     brief=music.MusicSkip.BRIEF
   )
+  @commands.check(is_music_channel)
   async def skip(self, ctx) -> None:
     if not self.vc:
         return
@@ -196,6 +206,7 @@ class Music(commands.Cog):
     help=music.MusicStop.HELP,
     brief=music.MusicStop.BRIEF
   )
+  @commands.check(is_music_channel)
   async def stop(self, ctx) -> None:
     self.connected = False
     await self.vc.disconnect()
@@ -213,6 +224,7 @@ class Music(commands.Cog):
     help=music.MusicQueue.HELP,
     brief=music.MusicQueue.BRIEF
   )
+  @commands.check(is_music_channel)
   async def queue(self, ctx) -> None:
     if not self.vc.queue.is_empty:
       counter = 0
@@ -250,6 +262,7 @@ class Music(commands.Cog):
     help=music.MusicQueueShuffle.HELP,
     brief=music.MusicQueueShuffle.BRIEF
   )
+  @commands.check(is_music_channel)
   async def shuffle(self, ctx) -> None:
     shuffle_embed = discord.Embed(
       colour=discord.Colour.yellow(),
@@ -271,6 +284,7 @@ class Music(commands.Cog):
     help=music.MusicQueueDelete.HELP,
     brief=music.MusicQueueDelete.BRIEF
   )
+  @commands.check(is_music_channel)
   async def delete(self, ctx, track : int) -> None:
     if not self.vc.queue.is_empty and self.vc:
       del_track = self.vc.queue.get_at(track - 1)
@@ -298,6 +312,7 @@ class Music(commands.Cog):
     help=music.MusicBye.HELP,
     brief=music.MusicBye.BRIEF
   )
+  @commands.check(is_music_channel)
   async def bye(self, ctx) -> None:
     if self.vc.connected:
       self.connected = False
@@ -314,6 +329,7 @@ class Music(commands.Cog):
     help=music.MusicReset.HELP,
     brief=music.MusicReset.BRIEF
   )
+  @commands.check(is_music_channel)
   async def reset(self, ctx) -> None:
     channel = ctx.author.voice.channel
     self.vc = await channel.connect(cls=wavelink.Player)

@@ -4,3 +4,4 @@ wavelink
 python-dotenv
 openai
 requests
+backoff
