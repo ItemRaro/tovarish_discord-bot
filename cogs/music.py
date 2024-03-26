@@ -82,10 +82,10 @@ class Music(commands.Cog):
       try:
         self.vc = await channel.connect(cls=wavelink.Player)
       except AttributeError:
-        await ctx.send("Please join a voice channel first before using this command.")
+        await ctx.send("Conecte-se a um canal de voz antes de executar esse comando")
         return
       except discord.ClientException:
-        await ctx.send("I was unable to join this voice channel. Please try again.")
+        await ctx.send("Não foi possível eu me conectar ao canal de voz. Tente novamente")
         return
     else:
       pass
@@ -95,6 +95,8 @@ class Music(commands.Cog):
     search : wavelink.Search = await wavelink.Playable.search(query)
     if not search:
       await ctx.send("Música não encontrada. Tente novamente")
+      if not self.vc.playing:
+        await self.vc.disconnect()
       return
     if isinstance(search, wavelink.Playlist):
       tracks : int = await self.vc.queue.put_wait(search)
@@ -181,6 +183,42 @@ class Music(commands.Cog):
       await ctx.message.delete()
     except discord.HTTPException:
       pass
+
+  # ADDS MUSIC
+  @commands.command()
+  @commands.check(is_music_channel)
+  async def add(self, ctx, *query):
+    query=" ".join(query)
+    search : wavelink.Search = await wavelink.Playable.search(query)
+    if not search:
+      await ctx.send("Música não encontrada. Tente novamente")
+      if not self.vc.playing:
+        await self.vc.disconnect()
+      return
+    if isinstance(search, wavelink.Playlist):
+      tracks : int = await self.vc.queue.put_wait(search)
+      embed = discord.Embed(
+      colour=discord.Colour.yellow(),
+      title=f"{search.name}"
+      )
+      embed.add_field(name=f"{tracks} músicas adicionadas a fila", value="")
+      embed.set_thumbnail(url=settings.MAMACO)
+      await ctx.send(embed=embed)
+    else:
+      if not self.vc.playing and self.vc.queue.is_empty:
+        track : wavelink.Playable = search[0]
+        await self.vc.queue.put_wait(track)
+      else:
+        track : wavelink.Playable = search[0]
+        await self.vc.queue.put_wait(track)
+        embed = discord.Embed(
+        colour=discord.Colour.yellow(),
+        title=f"{track.title}",
+        description=f"by {track.author}"
+        )
+        embed.add_field(name="adicionada a fila", value="")
+        embed.set_thumbnail(url=settings.MAMACO)
+        await ctx.send(embed=embed)
   
   # SKIP CURRENT PLAYING SONG
   @commands.command(

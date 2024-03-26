@@ -1,3 +1,4 @@
+import importlib
 import discord
 from discord.ext import commands
 from helpconfig import admincommands
@@ -8,6 +9,30 @@ class AdminCommands(commands.Cog):
     self.bot = bot
 
 # ------------------------------------------- COMMANDS START HERE ------------------------------------------- #
+  # RELOAD PYTHON MODULES USING PYTHON FILENAME
+  @commands.command(
+    description=admincommands.ReloadModule.DESCRIPTION,
+    aliases=admincommands.ReloadModule.ALIASES,
+    help=admincommands.ReloadModule.HELP,
+    brief=admincommands.ReloadModule.BRIEF
+  )
+  @commands.has_permissions(administrator=True)
+  async def reloadmodule(self, ctx, module : str):
+    await importlib.reload(module)
+    module_reload = discord.Embed(
+      colour=discord.Colour.green(),
+      title=f"{module.lower()}"
+      )
+    module_reload.add_field(
+      name="Recarregado ✅",
+      value=""
+      )
+    await ctx.send(embed=module_reload)
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
+
 
   # SYNC SLASH COMMANDS
   @commands.command(

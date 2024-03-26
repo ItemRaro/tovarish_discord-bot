@@ -1,3 +1,12 @@
+class ReloadModule():
+  DESCRIPTION = "Reinicia um Módulo do Python"
+
+  ALIASES = ["reiniciarmodulo"]
+
+  HELP = "Reinicia um dos módulos em execução no programa do bot."
+
+  BRIEF = "Reinicia módulos do Python"
+
 class SyncSlashCommands():
   DESCRIPTION = "Sincroniza os Slash Commands"
 
