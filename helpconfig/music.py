@@ -11,6 +11,16 @@ class MusicPlay():
 
   BRIEF = "Busca, adiciona e toca músicas."
 
+class MusicNowPlaying():
+
+  DESCRIPTION = "Mostra a música em execução"
+
+  ALIASES = ["np"]
+
+  HELP = "Ao digitar o comando será mostrado qual música está sendo executada no momento."
+
+  BRIEF = "Mostra a música em execução."
+
 class MusicPause():
 
   DESCRIPTION = "Pausa o player"

@@ -255,6 +255,37 @@ class Music(commands.Cog):
     except discord.HTTPException:
       pass
 
+  # SHOW THE CURRENT PLAYING TRACK
+  @commands.command(
+    description=music.MusicNowPlaying.DESCRIPTION,
+    aliases=music.MusicNowPlaying.ALIASES,
+    help=music.MusicNowPlaying.HELP,
+    brief=music.MusicNowPlaying.BRIEF
+  )
+  @commands.check(is_music_channel)
+  async def nowplaying(self, ctx) -> None:
+    if self.connected and self.vc.playing:
+      nowplaying_embed = discord.Embed(
+      colour=discord.Colour.yellow(),
+      title=f"{self.vc.current.title}",
+      description=f"by {self.vc.current.author}"
+      )
+      nowplaying_embed.set_thumbnail(url=settings.MAMACO)
+      nowplaying_embed.set_image(url=self.vc.current.artwork)
+      await self.music_channel.send(embed=nowplaying_embed)
+    else:
+      nowplaying_embed = discord.Embed(
+      colour=discord.Colour.yellow(),
+      title=f"Nenhuma música em execução no momento.",
+      description=f""
+      )
+      nowplaying_embed.set_thumbnail(url=settings.MAMACO)
+      await self.music_channel.send(embed=nowplaying_embed)
+    try:
+      await ctx.message.delete()
+    except discord.HTTPException:
+      pass
+
   # SHOW THE CURRENT MUSIC LIST
   @commands.command(
     description=music.MusicQueue.DESCRIPTION,
