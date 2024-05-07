@@ -1,0 +1,7 @@
+discord.py
+discord.py[voice]
+wavelink
+python-dotenv
+openai
+requests
+pip
