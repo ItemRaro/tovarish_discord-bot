@@ -7,6 +7,8 @@ class AdminCommands(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
 
+# ------------------------------------------- COMMANDS START HERE ------------------------------------------- #
+
   # SYNC SLASH COMMANDS
   @commands.command(
     description=admincommands.SyncSlashCommands.DESCRIPTION,

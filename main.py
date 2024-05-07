@@ -6,6 +6,7 @@ from cogs.controllers import Controllers
 from cogs.admincommands import AdminCommands
 from cogs.music import Music
 from cogs.errorhandler import ErrorHandler
+from cogs.chatgptai import ChatGPTAI
 
 logger = settings.logging.getLogger("bot")
 
@@ -36,7 +37,8 @@ def run():
         await bot.load_extension(f"cogs.{cog_file.name[:-3]}")
 
     # BOT PRESENCE UPDATE
-    mamaco = discord.CustomActivity(name="🍌 Mamaco * !!help")
+    # EMOJI 🍌
+    mamaco = discord.CustomActivity(name="🍌 Mamaco ⌥ !!help")
     await bot.change_presence(
       status=discord.Status.online,
       activity=mamaco
