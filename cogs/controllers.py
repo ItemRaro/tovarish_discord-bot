@@ -20,7 +20,7 @@ class Controllers(commands.Cog):
   # AUTO DELETE MESSAGES FROM A TEXTCHANNEL SPECIFIED BY CHANNEL ID
   @tasks.loop(time=time)
   async def message_deletion(self):
-    channel_id = "1148485450634371144"
+    channel_id = "1150227153833709578"
     for guild in self.bot.guilds:
       for channel in guild.channels:
         if str(channel.id) == channel_id:
